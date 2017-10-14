@@ -6,7 +6,7 @@ Created on Oct 13, 2017
 @author: schernikov
 '''
 
-import argparse, sys
+import argparse, math
 
 def main():
     parser = arg_parser()
@@ -67,7 +67,11 @@ def find_position(n, k):
         L = n - highest_bit(n)
         return 2*L # zero based position index
     
-    return find_generic(n, k) if n < k else find_higher(n, k)
+    if k*math.log(n) > n: # approximate complexity to chose better solution method; important for larger n
+        # will go here if k is large enough
+        return find_generic(n, k)
+    
+    return find_generic(n, k) if n < k else find_recursive(n, k)
     
     
 def find_generic(n, k):
@@ -86,14 +90,15 @@ def find_generic(n, k):
     return g
 
     
-def find_higher(n, k):
+def find_recursive(n, k):
     """k <= n, complexity O(k log n)"""
+    
     np = n - n/k
     if np < k:
         g = find_generic(np, k)
     else:
         try:
-            g = find_higher(np, k)
+            g = find_recursive(np, k)
         except RuntimeError:
             # capture out-of-stack exception
             g = find_generic(np, k)
