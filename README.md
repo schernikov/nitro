@@ -20,6 +20,23 @@ Test are located in `./test/tester.py`. Test can be executed as this:
 ```sh
 python -m test.tester -v
 ```
+Results:
+```
+test_fours (__main__.TestCounting) ... ok
+test_huge (__main__.TestCounting) ... ok
+test_invalid (__main__.TestCounting) ... ok
+test_negatives (__main__.TestCounting) ... ok
+test_ones (__main__.TestCounting) ... ok
+test_shifted (__main__.TestCounting) ... ok
+test_threes (__main__.TestCounting) ... ok
+test_twos (__main__.TestCounting) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.011s
+
+OK
+```
+
 #### Running
 This tool as a CLI interface. Here is how it works:
 ```
