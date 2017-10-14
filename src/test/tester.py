@@ -19,13 +19,18 @@ class TestCounting(unittest.TestCase):
         pass
 
 
-    def try_values(self, n, k):
-        return counting.process(self.parser.parse_args(['%d'%(n), '%d'%(k)]))
+    def try_values(self, n, k, shift=None):
+        args = ['%d'%(n), '%d'%(k)]
+        if shift is not None:
+            args.insert(0, '-x')
+            args.insert(1, '%d'%(shift))
+
+        return counting.process(self.parser.parse_args(args))
     
     
-    def try_range(self, nn, k):
-        for idx in xrange(len(nn)):
-            self.assertEqual(self.try_values(idx+1, k), nn[idx])
+    def try_range(self, rr, k):
+        for idx in xrange(len(rr)):
+            self.assertEqual(self.try_values(idx+1, k), rr[idx])
 
 
     def test_invalid(self):
@@ -38,8 +43,15 @@ class TestCounting(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm:
             with test.helper.OutputSuppressor(): # ignore annoying stderr complains
                 counting.process(self.parser.parse_args(['a', 'b']))
-            
+                
         self.assertEqual(cm.exception.code, 2)
+        
+        with self.assertRaises(Exception):
+            with test.helper.OutputSuppressor(): # ignore annoying stderr complains
+                counting.process(self.parser.parse_args(['-x', '5', '1', '1']))
+                
+        self.assertEqual(cm.exception.code, 2)
+
 
     def test_negatives(self):
         with self.assertRaises(Exception):
@@ -53,22 +65,44 @@ class TestCounting(unittest.TestCase):
             
             
     def test_ones(self):
-        self.try_range(range(1, 10), 1)
+        rr = range(1, 10)
+        k = 1
+        self.try_range(rr, k)
         
         
     def test_twos(self):
-        results = [1, 1, 3, 1, 3, 5, 7, 1, 3, 5, 7, 9, 11, 13, 15, 1]
-        self.try_range(results, 2)
+        #    [1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12, 13, 14, 15, 16]
+        rr = [1, 1, 3, 1, 3, 5, 7, 1, 3, 5, 7, 9, 11, 13, 15, 1]
+        k = 2
+        self.try_range(rr, k)
 
 
     def test_threes(self):
-        results = [1, 2, 2, 1, 4, 1, 4, 7, 1, 4]
-        self.try_range(results, 3)
+        #    [1, 2, 3, 4, 5, 6, 7, 8, 9,10]
+        rr = [1, 2, 2, 1, 4, 1, 4, 7, 1, 4]
+        k = 3
+        self.try_range(rr, k)
         
         
     def test_fours(self):
-        results = [1, 1, 2, 2, 1, 5, 2, 6, 1, 5]
-        self.try_range(results, 4)
+        #    [1, 2, 3, 4, 5, 6, 7, 8, 9,10]
+        rr = [1, 1, 2, 2, 1, 5, 2, 6, 1, 5]
+        k = 4
+        self.try_range(rr, k)
+        
+        
+    def test_shifted(self):
+        #    [1, 2, 3, 4, 5, 6, 7, 8, 9,10]
+        rr = [1, 1, 2, 2, 1, 5, 2, 6, 1, 5]
+        k = 4
+        def shifted_result(n, shift):
+            r = rr[n-1] - 1 # zero based position
+            sh = shift - 1  # zero based position
+            return ((r+sh)%n)+1 # one based position
+
+        for n in xrange(1, len(rr)+1):
+            for shift in xrange(1, n+1):
+                self.assertEqual(self.try_values(n, k, shift=shift), shifted_result(n, shift))
         
         
     def test_huge(self):
