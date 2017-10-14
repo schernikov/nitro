@@ -65,8 +65,8 @@ class TestCounting(unittest.TestCase):
             
             
     def test_ones(self):
+        k=1
         rr = range(1, 10)
-        k = 1
         self.try_range(rr, k)
         
         
